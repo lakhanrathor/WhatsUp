@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>WhatsUp</title>
+
+  <link
+    rel="stylesheet"
+    href="./css/style.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  >
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- Sidebar -->
+
+  <div class="sidebar">
+
+
+<div class="profile">
+
+  <div
+  class="avatar"
+  id="profileAvatar"
+>
+  U
+</div>
+
+  <div>
+    <h3 id="profileName">
+      User
+    </h3>
+
+    <p>
+      Online
+    </p>
+    <button
+    id="logoutBtn"
+    class="logout-btn"
+  >
+    Logout
+</button>
+  </div>
+
+</div>
+
+<input
+  type="text"
+  placeholder="Search..."
+  class="search"
+>
+<button
+id="deleteChatsBtn"
+style="display:none"
+>
+🗑 Delete Chats
+</button>
+<div class="action-icons">
+
+  <button
+  class="icon-btn"
+  id="newChatBtn"
+>
+  <i class="fa-solid fa-message"></i>
+</button>
+
+  <button
+  class="icon-btn"
+  id="groupBtn">
+    <i class="fa-solid fa-user-group"></i>
+  </button>
+
+  <button class="icon-btn">
+    <i class="fa-solid fa-gear"></i>
+  </button>
+
+</div>
+
+<!-- Dynamic Chat List -->
+
+<div
+  class="chat-list"
+  id="chatList"
+>
+</div>
+
+  </div>
+
+  <!-- Chat Area -->
+
+  <div class="chat-section">
+
+<!-- Empty Screen -->
+
+<div
+id="emptyChat"
+class="empty-chat"
+>
+
+<i class="fa-solid fa-comments"></i>
+
+<h2>
+Welcome to Selective Visibility Messaging
+</h2>
+
+<p>
+Select a chat to start messaging.
+</p>
+
+</div>
+
+<!-- Actual Chat -->
+
+<div
+id="chatContent"
+style="display:none;height:100%;"
+>
+
+<div class="chat-header">
+
+<div class="chat-header-left">
+
+<button id="deleteMessagesBtn">
+🗑 Delete
+</button>
+
+<div>
+
+<h2 id="chatName">
+</h2>
+
+<p id="chatStatus">
+Online
+</p>
+
+</div>
+
+</div>
+
+<div class="header-icons">
+
+<i class="fa-solid fa-phone"></i>
+
+<i class="fa-solid fa-video"></i>
+
+<i
+id="groupMenuBtn"
+class="fa-solid fa-ellipsis-vertical">
+</i>
+
+</div>
+
+</div>
+
+<div
+class="chat-window"
+id="chatWindow"
+>
+
+</div>
+
+<div class="message-input">
+
+<button id="privateBtn">
+🔒
+</button>
+
+<input
+type="text"
+placeholder="Type a message..."
+>
+
+<button id="sendBtn">
+➤
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Audience Modal -->
+
+<div
+  id="audienceModal"
+  class="modal"
+>
+
+  <div class="modal-content">
+
+
+<h2>
+  Select Audience
+</h2>
+
+<div class="audience-options">
+
+  <label>
+
+    <input
+      type="radio"
+      name="audience"
+      value="only"
+    >
+
+    Only Share With
+
+  </label>
+
+  <label>
+
+    <input
+      type="radio"
+      name="audience"
+      value="except"
+    >
+
+    Everyone Except
+
+  </label>
+
+</div>
+
+<hr>
+
+<div
+  id="memberList"
+  class="member-list"
+>
+</div>
+
+<div
+  class="modal-buttons"
+>
+
+  <button
+    id="createPrivate"
+  >
+    Create
+  </button>
+
+  <button
+    id="closeModal"
+  >
+    Cancel
+  </button>
+
+</div>
+
+
+  </div>
+
+</div>
+
+<!-- Private Thread Panel -->
+
+<div
+  id="threadPanel"
+  class="thread-panel"
+>
+
+  <div
+    class="thread-header"
+  >
+
+<h3>
+  🔒 Private Discussion
+</h3>
+
+<button
+  id="closeThread"
+>
+  ✖
+</button>
+
+  </div>
+
+  <div
+    id="threadMessages"
+    class="thread-messages"
+  >
+  </div>
+
+  <div
+    class="thread-input"
+  >
+<input
+  id="threadInput"
+  type="text"
+  placeholder="Type privately..."
+>
+
+<button
+  id="threadSend"
+>
+  Send
+</button>
+
+  </div>
+
+</div>
+<div
+  id="chatModal"
+  class="modal"
+>
+
+  <div class="modal-content">
+
+    <h2>
+  Search User
+</h2>
+
+<input
+  id="chatSearch"
+  type="text"
+  placeholder="Search by username..."
+>
+
+<div
+  id="searchResults"
+  class="search-results"
+>
+</div>
+
+<div class="modal-buttons">
+
+  <button
+    id="closeChatModal"
+  >
+    Close
+  </button>
+
+</div>
+
+  </div>
+
+</div>
+<div
+id="groupModal"
+class="modal"
+>
+
+<div class="modal-content">
+
+<h2>
+Create Group
+</h2>
+
+<input
+id="groupName"
+type="text"
+placeholder="Enter Group Name"
+>
+
+<input
+id="groupSearch"
+type="text"
+placeholder="Search Users"
+>
+
+<div
+id="groupSearchResults"
+class="search-results"
+>
+</div>
+
+<hr>
+
+<h3>
+Selected Members
+</h3>
+
+<div
+id="selectedMembers"
+>
+</div>
+
+<div class="modal-buttons">
+
+<button
+id="createGroupBtn"
+>
+Create Group
+</button>
+
+<button
+id="closeGroupModal"
+>
+Cancel
+</button>
+
+</div>
+
+</div>
+
+</div>
+<div
+id="deleteConfirmModal"
+class="delete-modal"
+>
+
+<div class="delete-modal-content">
+
+<h2>
+🗑 Delete Chat
+</h2>
+
+<p id="deleteModalText">
+Delete selected chats?
+</p>
+
+<div class="delete-modal-buttons">
+
+<button
+id="confirmDeleteBtn"
+class="confirm-delete"
+>
+Delete
+</button>
+
+<button
+id="cancelDeleteBtn"
+class="cancel-delete"
+>
+Cancel
+</button>
+
+</div>
+
+</div>
+
+</div>
+<!-- Group Info Modal -->
+
+<div
+id="groupInfoModal"
+class="modal"
+>
+
+<div class="modal-content group-info">
+
+<h2 id="groupInfoName">
+Group Name
+</h2>
+
+<p id="groupInfoAdmin">
+Admin
+</p>
+
+<hr>
+
+<h3>
+Members
+</h3>
+
+<div
+id="groupMembersList"
+class="member-list"
+>
+</div>
+
+<hr>
+
+<div
+id="groupAdminOptions"
+>
+
+<button id="renameGroupBtn">
+✏ Rename Group
+</button>
+
+<button id="addMemberBtn">
+➕ Add Member
+</button>
+
+<button id="removeMemberBtn">
+➖ Remove Member
+</button>
+
+<button
+id="deleteGroupBtn"
+class="danger-btn"
+>
+🗑 Delete Group
+</button>
+
+</div>
+
+<button
+id="leaveGroupBtn"
+class="danger-btn"
+>
+🚪 Leave Group
+</button>
+
+<button
+id="closeGroupInfo"
+>
+Close
+</button>
+
+</div>
+
+</div>
+<div
+id="addMemberModal"
+class="modal"
+>
+
+<div class="modal-content">
+
+<h2>
+Add Member
+</h2>
+
+<input
+id="addMemberSearch"
+type="text"
+placeholder="Search users..."
+>
+
+<div
+id="addMemberResults"
+class="search-results"
+>
+</div>
+
+<div class="modal-buttons">
+
+<button
+id="closeAddMember"
+>
+Close
+</button>
+
+</div>
+
+</div>
+
+</div>
+<!-- Remove Member Modal -->
+
+<div
+id="removeMemberModal"
+class="modal"
+>
+
+<div class="modal-content">
+
+<h2>
+Remove Member
+</h2>
+
+<input
+id="removeMemberSearch"
+type="text"
+placeholder="Search member..."
+>
+
+<div
+id="removeMemberResults"
+class="search-results"
+>
+</div>
+
+<div class="modal-buttons">
+
+<button
+id="closeRemoveMember"
+>
+Close
+</button>
+
+</div>
+
+</div>
+
+</div>
+<script src="/socket.io/socket.io.js"></script>
+
+<script
+  src="./js/app.js"
+></script>
+
+</body>
+</html>
