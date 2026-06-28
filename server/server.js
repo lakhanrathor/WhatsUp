@@ -140,6 +140,50 @@ setInterval(() => {
 io.on(
 "connection",
 (socket)=>{
+    socket.on(
+"typing",
+(data)=>{
+
+socket.to(
+data.chatId
+).emit(
+"user-typing",
+{
+
+username:data.username
+
+}
+);
+
+});
+
+socket.on(
+"stop-typing",
+(chatId)=>{
+
+socket.to(chatId)
+.emit(
+"user-stop-typing"
+);
+
+});
+socket.on(
+"user-typing",
+(data)=>{
+
+typingIndicator.textContent =
+`${data.username} is typing...`;
+
+});
+
+socket.on(
+"user-stop-typing",
+()=>{
+
+typingIndicator.textContent =
+"";
+
+});
 
 console.log(
 "User Connected:",

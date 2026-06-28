@@ -146,6 +146,7 @@ alert(error.message);
 }
 
 };
+
 const scheduledPanel =
 document.getElementById(
 "scheduledPanel"
@@ -190,6 +191,7 @@ document
 messagePermissionModal.style.display="flex";
 
 };
+
 const removeMemberBtn =
 document.getElementById(
 "removeMemberBtn"
@@ -2380,15 +2382,19 @@ loadThreadMessages();
 
 /* Send Message */
 
-async function
-sendMessage(){
+async function sendMessage(){
 
-  const text =
-  messageInput.value.trim();
+const text =
+messageInput.value.trim();
 
-  if(
-!activeChatId
-&&
+if(text===""){
+
+return;
+
+}
+
+if(
+!activeChatId &&
 selectedUserId
 ){
 
@@ -2402,17 +2408,14 @@ await fetch(
 method:"POST",
 
 headers:{
-"Content-Type":
-"application/json"
+"Content-Type":"application/json"
 },
 
 body:JSON.stringify({
 
-user1:
-USER_ID,
+user1:USER_ID,
 
-user2:
-selectedUserId
+user2:selectedUserId
 
 })
 
@@ -2430,6 +2433,7 @@ activeChat =
 chat;
 
 await loadChats();
+
 loadMessages();
 
 selectedUserId =
@@ -2439,25 +2443,27 @@ null;
 
 if(!activeChatId){
 
-alert(
-"Select Chat"
-);
+alert("Select Chat");
 
 return;
 
 }
 
-  try{
-    console.log(
-    "visibilityType:",
-    window.visibilityType
-    );
+try{
 
-    console.log(
-    "visibleTo:",
-    window.visibleTo
-    );
-    /* Scheduled Message */
+console.log(
+"visibilityType:",
+window.visibilityType
+);
+
+console.log(
+"visibleTo:",
+window.visibleTo
+);
+
+/* ===========================
+   SCHEDULED MESSAGE
+=========================== */
 
 if(scheduledMessage){
 
@@ -2543,18 +2549,99 @@ scheduledFor
 
 }
 
-messageInput.value =
-"";
-loadMessages();
-}
+if(response.ok){
+
+messageInput.value="";
+
+scheduledMessage=null;
+
+editingScheduledId=null;
+
+scheduleDate.value="";
+
+scheduleTime.value="";
+
+scheduleBtn.textContent="⏰";
+
+scheduleBtn.classList.remove("scheduled");
+
 updateScheduleIcon();
 
-  }
-  catch(error){
+loadScheduledMessages();
 
-    console.log(error);
+}
 
-  }
+return;
+
+}
+
+/* ===========================
+   NORMAL MESSAGE
+=========================== */
+
+const response =
+await fetch(
+
+"/api/chat/send-message",
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+chatId:activeChatId,
+
+senderId:USER_ID,
+
+text,
+
+visibilityType:
+window.visibilityType || "all",
+
+visibleTo:
+window.visibleTo || []
+
+})
+
+}
+
+);
+
+if(response.ok){
+
+socket.emit(
+
+"send-message",
+
+{
+
+chatId:activeChatId,
+
+sender:currentUser,
+
+text
+
+}
+
+);
+
+messageInput.value="";
+
+loadMessages();
+
+}
+
+}
+catch(error){
+
+console.log(error);
+
+}
 
 }
 

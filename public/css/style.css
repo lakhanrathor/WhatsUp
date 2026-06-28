@@ -1534,3 +1534,16 @@ border-radius:12px;
 transition:.25s;
 
 }
+.typing-indicator{
+
+height:22px;
+
+padding-left:20px;
+
+font-size:14px;
+
+color:#94a3b8;
+
+font-style:italic;
+
+}
