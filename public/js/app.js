@@ -1,3 +1,195 @@
+let memberSelectorMode = "add";
+let selectedPermissionMembers = new Set();
+let scheduledMessage = null;
+let editingScheduledId = null;
+
+document
+.getElementById("continuePermissionBtn")
+.onclick = async () => {
+
+const mode = document.querySelector(
+'input[name="messagePermission"]:checked'
+).value;
+
+messagePermissionModal.style.display = "none";
+
+if(mode === "everyone"){
+
+await fetch("/api/chat/update-message-permission",{
+method:"PUT",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+chatId:activeChatId,
+adminId:USER_ID,
+mode:"everyone",
+members:[]
+})
+});
+
+messagePermissionModal.style.display="none";
+alert("Everyone can now send messages.");
+
+return;
+
+}
+
+if(mode === "admins"){
+
+await fetch("/api/chat/update-message-permission",{
+method:"PUT",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+chatId:activeChatId,
+adminId:USER_ID,
+mode:"admins",
+members:[]
+})
+});
+
+messagePermissionModal.style.display="none";
+alert("Only admins can now send messages.");
+
+return;
+
+}
+
+if(mode === "only"){
+
+memberSelectorMode = "permission-only";
+
+groupInfoModal.style.display = "none";
+
+addMemberModal.style.display = "flex";
+
+addMemberSearch.value = "";
+
+addMemberResults.innerHTML = "";
+
+return;
+
+}
+
+if(mode === "except"){
+
+memberSelectorMode = "permission-except";
+
+groupInfoModal.style.display = "none";
+
+addMemberModal.style.display = "flex";
+
+addMemberSearch.value = "";
+
+addMemberResults.innerHTML = "";
+
+}
+
+};
+const permissionDoneBtn =
+document.getElementById("permissionDoneBtn");
+permissionDoneBtn.onclick = async()=>{
+
+const mode =
+document.querySelector(
+'input[name="messagePermission"]:checked'
+).value;
+
+const response =
+await fetch(
+
+"/api/chat/update-message-permission",
+
+{
+
+method:"PUT",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+chatId:activeChatId,
+
+adminId:USER_ID,
+
+mode,
+
+members:Array.from(selectedPermissionMembers)
+
+})
+
+}
+
+);
+
+if(response.ok){
+
+activeChat = await response.json();
+
+selectedPermissionMembers.clear();
+
+addMemberModal.style.display = "none";
+
+alert("Messaging permission updated successfully.");
+
+}
+else{
+
+const error = await response.json();
+
+alert(error.message);
+
+}
+
+};
+const scheduledPanel =
+document.getElementById(
+"scheduledPanel"
+);
+
+const scheduledMessagesList =
+document.getElementById(
+"scheduledMessagesList"
+);
+
+
+
+const closeScheduledPanel =
+document.getElementById(
+"closeScheduledPanel"
+);
+closeScheduledPanel.onclick = () => {
+
+    scheduledPanel.style.display = "none";
+
+};
+
+const messagePermissionModal =
+document.getElementById(
+"messagePermissionModal"
+);
+
+document
+.getElementById(
+"closePermissionBtn"
+)
+.onclick=()=>{
+
+messagePermissionModal.style.display="none";
+
+};
+
+document
+.getElementById("messagePermissionBtn")
+.onclick = () => {
+
+messagePermissionModal.style.display="flex";
+
+};
 const removeMemberBtn =
 document.getElementById(
 "removeMemberBtn"
@@ -155,23 +347,347 @@ removeMemberResults
 });
 
 });
+async function loadScheduledMessages(){
 
+try{
+
+const response =
+await fetch(
+
+`/api/scheduled/chat/${activeChatId}/${USER_ID}`
+
+);
+
+const messages =
+await response.json();
+
+scheduledMessagesList.innerHTML="";
+
+if(messages.length===0){
+
+scheduledMessagesList.innerHTML=`
+
+<p style="text-align:center;color:#9ca3af;">
+
+No scheduled messages
+
+</p>
+
+`;
+
+return;
+
+}
+
+messages.forEach(message=>{
+
+const card =
+document.createElement("div");
+
+card.className="scheduled-card";
+
+card.innerHTML=`
+
+<h4>${message.text}</h4>
+
+<p>
+
+📅 ${
+new Date(message.scheduledFor)
+.toLocaleDateString()
+}
+
+</p>
+
+<p>
+
+🕒 ${
+new Date(message.scheduledFor)
+.toLocaleTimeString([],{
+
+hour:"2-digit",
+
+minute:"2-digit"
+
+})
+
+}
+
+</p>
+
+<div class="scheduled-actions">
+
+<button
+class="editScheduleBtn"
+data-id="${message._id}"
+>
+
+✏ Edit
+
+</button>
+
+<button
+class="deleteScheduleBtn"
+data-id="${message._id}"
+>
+
+🗑 Delete
+
+</button>
+
+</div>
+
+`;
+
+scheduledMessagesList.appendChild(card);
+
+/* DELETE */
+
+card.querySelector(".deleteScheduleBtn").onclick =
+async()=>{
+
+if(
+!confirm(
+"Delete this scheduled message?"
+)
+){
+
+return;
+
+}
+
+const response =
+await fetch(
+
+`/api/scheduled/${message._id}`,
+
+{
+
+method:"DELETE"
+
+}
+
+);
+
+if(response.ok){
+
+loadScheduledMessages();
+
+}
+
+};
+
+/* EDIT */
+
+card.querySelector(".editScheduleBtn").onclick = ()=>{
+
+editingScheduledId =
+message._id;
+
+/* Fill Message */
+
+messageInput.value =
+message.text;
+
+/* Fill Date */
+
+const date =
+new Date(
+message.scheduledFor
+);
+
+scheduleDate.value =
+date.toISOString().split("T")[0];
+
+/* Fill Time */
+
+scheduleTime.value =
+`${String(date.getHours()).padStart(2,"0")}:${String(date.getMinutes()).padStart(2,"0")}`;
+
+/* Close Panel */
+
+scheduledPanel.style.display =
+"none";
+
+/* Open Schedule Modal */
+
+scheduleModal.style.display =
+"flex";
+
+};
+
+});
+
+}
+catch(error){
+
+console.log(error);
+
+}
+
+}
+
+
+const scheduleBtn =
+document.getElementById(
+"scheduleBtn"
+);
+
+const scheduleModal =
+document.getElementById(
+"scheduleModal"
+);
+
+const scheduleDate =
+document.getElementById(
+"scheduleDate"
+);
+
+const scheduleTime =
+document.getElementById(
+"scheduleTime"
+);
+
+const confirmScheduleBtn =
+document.getElementById(
+"confirmScheduleBtn"
+);
+confirmScheduleBtn.onclick = () => {
+
+    if(
+        scheduleDate.value === "" ||
+        scheduleTime.value === ""
+    ){
+
+        alert("Select date and time.");
+
+        return;
+
+    }
+
+    scheduledMessage = {
+
+        date: scheduleDate.value,
+
+        time: scheduleTime.value
+
+    };
+
+    scheduleBtn.textContent = "🕒";
+
+    scheduleBtn.classList.add(
+        "scheduled"
+    );
+
+    scheduleModal.style.display = "none";
+
+};
+
+const closeScheduleBtn =
+document.getElementById(
+"closeScheduleBtn"
+);
+scheduleBtn.onclick = async () => {
+
+    await loadScheduledMessages();
+
+    const cards =
+    scheduledMessagesList.children.length;
+
+    if(cards > 0){
+
+        scheduledPanel.style.display = "block";
+
+        return;
+
+    }
+
+    const message =
+    messageInput.value.trim();
+
+    if(message === ""){
+
+        alert(
+        "Type a message before scheduling."
+        );
+
+        return;
+
+    }
+
+    const now = new Date();
+
+    now.setMinutes(
+    now.getMinutes()+1
+    );
+
+    scheduleDate.value =
+    now.toISOString().split("T")[0];
+
+    scheduleTime.value =
+    `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+
+    scheduleModal.style.display =
+    "flex";
+
+};
+closeScheduleBtn.onclick = () => {
+
+scheduleModal.style.display =
+"none";
+
+};
+scheduleAnotherBtn.onclick = () => {
+
+    scheduledPanel.style.display = "none";
+
+    const message =
+    messageInput.value.trim();
+
+    if(message === ""){
+
+        alert(
+        "Type a message before scheduling."
+        );
+
+        return;
+
+    }
+
+    const now =
+    new Date();
+
+    now.setMinutes(
+    now.getMinutes()+1
+    );
+
+    scheduleDate.value =
+    now.toISOString().split("T")[0];
+
+    scheduleTime.value =
+    `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+
+    scheduleModal.style.display =
+    "flex";
+
+};
 
 const addMemberBtn =
 document.getElementById(
 "addMemberBtn"
 );
-addMemberBtn.onclick=()=>{
+addMemberBtn.onclick = () => {
 
-groupInfoModal.style.display=
-"none";
+    memberSelectorMode = "add";
+    selectedPermissionMembers.clear();
 
-addMemberModal.style.display=
-"flex";
+    groupInfoModal.style.display = "none";
 
-addMemberSearch.value="";
+    addMemberModal.style.display = "flex";
 
-addMemberResults.innerHTML="";
+    addMemberSearch.value = "";
+
+    addMemberResults.innerHTML = "";
 
 };
 
@@ -219,22 +735,45 @@ await fetch(
 
 const users =
 await response.json();
+console.log("Users:", users);
 
-const availableUsers =
-users.filter(user =>
+let availableUsers;
 
-!activeChat.activeMembers.some(member =>
+if(memberSelectorMode === "add"){
 
-member._id.toString() === user._id.toString()
+    // Show only users who are NOT already in the group
+    availableUsers = users.filter(user =>
 
-)
+        !activeChat.activeMembers.some(member =>
 
-);
+            member._id.toString() === user._id.toString()
+
+        )
+
+    );
+
+}
+else{
+
+    // For permissions, show only current group members
+    availableUsers = activeChat.activeMembers.filter(member =>
+
+        member._id.toString() !== USER_ID.toString() &&
+
+        member.username
+        .toLowerCase()
+        .includes(text.toLowerCase())
+
+    );
+
+}
+console.log("Available Users:", availableUsers);
 
 addMemberResults.innerHTML = "";
+console.log("Rendering users...");
 
 availableUsers.forEach(user=>{
-
+console.log("Creating div for:", user.username);
 const div =
 document.createElement("div");
 
@@ -249,7 +788,10 @@ div.innerHTML = `
 
 div.onclick = async()=>{
 
-const response =
+/* ADD MEMBER */
+
+if(memberSelectorMode==="add"){
+
 await fetch(
 
 "/api/chat/add-member",
@@ -264,13 +806,11 @@ headers:{
 
 body:JSON.stringify({
 
-chatId:
-activeChatId,
+chatId:activeChatId,
 
-memberId:
-user._id,
-adminId:
-USER_ID
+memberId:user._id,
+
+adminId:USER_ID
 
 })
 
@@ -279,17 +819,69 @@ USER_ID
 );
 
 await loadChats();
+
 loadMessages();
 
-groupInfoModal.style.display =
-"flex";
+groupInfoModal.style.display="flex";
 
-addMemberModal.style.display =
-"none";
+addMemberModal.style.display="none";
 
 groupMenuBtn.click();
 
+return;
+
+}
+
+/* PERMISSION : ONLY */
+
+if(memberSelectorMode==="permission-only"){
+
+if(selectedPermissionMembers.has(user._id)){
+
+selectedPermissionMembers.delete(user._id);
+
+div.classList.remove("selected-user");
+
+}
+
+else{
+
+selectedPermissionMembers.add(user._id);
+
+div.classList.add("selected-user");
+
+}
+
+return;
+
+}
+
+/* PERMISSION : EXCEPT */
+
+if(memberSelectorMode==="permission-except"){
+
+if(selectedPermissionMembers.has(user._id)){
+
+selectedPermissionMembers.delete(user._id);
+
+div.classList.remove("selected-user");
+
+}
+
+else{
+
+selectedPermissionMembers.add(user._id);
+
+div.classList.add("selected-user");
+
+}
+
+return;
+
+}
+
 };
+console.log("Appending:", user.username);
 
 addMemberResults.appendChild(div);
 
@@ -297,9 +889,6 @@ addMemberResults.appendChild(div);
 
 }
 );
-
-addMemberModal.style.display=
-"none";
 
 const renameGroupBtn =
 document.getElementById(
@@ -659,6 +1248,22 @@ localStorage.getItem(
 );
 const socket =
 io();
+socket.on(
+"receive-message",
+(data)=>{
+
+if(
+data.chatId === activeChatId
+){
+
+loadMessages();
+
+}
+
+loadChats();
+
+}
+);
 
 if(!token){
 
@@ -1533,6 +2138,44 @@ catch(error){
 console.log(error);
 
 }}
+async function updateScheduleIcon(){
+
+    if(!activeChatId){
+
+        scheduleBtn.textContent = "⏰";
+
+        return;
+
+    }
+
+    const response =
+    await fetch(
+
+        `/api/scheduled/chat/${activeChatId}/${USER_ID}`
+
+    );
+
+    const scheduled =
+    await response.json();
+
+    if(scheduled.length > 0){
+
+        scheduleBtn.textContent = "🕒";
+
+        scheduleBtn.classList.add("scheduled");
+
+    }
+    else{
+
+   scheduleBtn.textContent = "⏰";
+
+    scheduleBtn.classList.remove(
+        "scheduled"
+    );
+
+    }
+
+}
 
 /* Load Messages */
 
@@ -1814,64 +2457,97 @@ return;
     "visibleTo:",
     window.visibleTo
     );
+    /* Scheduled Message */
 
-    const response =
-    await fetch(
+if(scheduledMessage){
 
-      "/api/chat/send-message",
+const scheduledFor =
+new Date(
 
-      {
+`${scheduledMessage.date}T${scheduledMessage.time}`
 
-        method:"POST",
+);
 
-        headers:{
-          "Content-Type":
-          "application/json"
-        },
+let response;
 
-     body:JSON.stringify({
+if(editingScheduledId){
 
-      chatId:
-      activeChatId,
+response =
+await fetch(
 
-      senderId:
-      USER_ID,
+`/api/scheduled/${editingScheduledId}`,
 
-      text,
-
-      visibilityType:
-      window.visibilityType || "all",
-
-      visibleTo:
-      window.visibleTo || []
-
-      })
-
-      }
-
-    );
-
-    if(response.ok){
-
-socket.emit(
-"send-message",
 {
 
-chatId:
-activeChatId,
+method:"PUT",
 
-sender:
-currentUser,
+headers:{
+"Content-Type":"application/json"
+},
 
-text
+body:JSON.stringify({
+
+text,
+
+scheduledFor,
+
+visibilityType:
+window.visibilityType || "all",
+
+visibleTo:
+window.visibleTo || []
+
+})
 
 }
+
 );
+
+}
+else{
+
+response =
+await fetch(
+
+"/api/scheduled/schedule",
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+chatId:activeChatId,
+
+senderId:USER_ID,
+
+text,
+
+visibilityType:
+window.visibilityType || "all",
+
+visibleTo:
+window.visibleTo || [],
+
+scheduledFor
+
+})
+
+}
+
+);
+
+}
 
 messageInput.value =
 "";
 loadMessages();
 }
+updateScheduleIcon();
 
   }
   catch(error){

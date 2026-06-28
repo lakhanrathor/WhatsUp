@@ -56,11 +56,41 @@ ref:"User"
 }
 ],
 
-  createdAt:{
-    type:Date,
-    default:Date.now
-  }
+/* Messaging Permission */
 
+messagingPermission:{
+
+mode:{
+type:String,
+enum:[
+"everyone",
+"admins",
+"only",
+"except"
+],
+default:"everyone"
+},
+
+allowedMembers:[
+{
+type:mongoose.Schema.Types.ObjectId,
+ref:"User"
+}
+],
+
+blockedMembers:[
+{
+type:mongoose.Schema.Types.ObjectId,
+ref:"User"
+}
+]
+
+},
+
+createdAt:{
+type:Date,
+default:Date.now
+}
 });
 
 module.exports =

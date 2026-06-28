@@ -179,15 +179,16 @@ id="chatWindow"
 <input
 type="text"
 placeholder="Type a message..."
+id="messageInput"
 >
+
+<button id="scheduleBtn">
+⏰
+</button>
 
 <button id="sendBtn">
 ➤
 </button>
-
-</div>
-
-</div>
 
 </div>
 
@@ -335,7 +336,6 @@ placeholder="Type a message..."
 </div>
 
 <div class="modal-buttons">
-
   <button
     id="closeChatModal"
   >
@@ -442,6 +442,80 @@ Cancel
 </div>
 
 </div>
+<!-- Messaging Permission Modal -->
+
+<div id="messagePermissionModal" class="modal">
+
+<div class="modal-content">
+
+<h2>Messaging Permissions</h2>
+
+<p>Choose who can send messages in this group.</p>
+
+<label>
+
+<input
+type="radio"
+name="messagePermission"
+value="everyone"
+checked>
+
+Everyone
+
+</label>
+
+<label>
+
+<input
+type="radio"
+name="messagePermission"
+value="admins">
+
+Only Admins
+
+</label>
+
+<label>
+
+<input
+type="radio"
+name="messagePermission"
+value="only">
+
+Only Selected Members
+
+</label>
+
+<label>
+
+<input
+type="radio"
+name="messagePermission"
+value="except">
+
+Everyone Except
+
+</label>
+
+<div class="modal-buttons">
+
+<button id="continuePermissionBtn">
+
+Continue
+
+</button>
+
+<button id="closePermissionBtn">
+
+Close
+
+</button>
+
+</div>
+
+</div>
+
+</div>
 <!-- Group Info Modal -->
 
 <div
@@ -479,6 +553,9 @@ id="groupAdminOptions"
 
 <button id="renameGroupBtn">
 ✏ Rename Group
+</button>
+<button id="messagePermissionBtn">
+    Messaging Permissions
 </button>
 
 <button id="addMemberBtn">
@@ -538,7 +615,9 @@ class="search-results"
 </div>
 
 <div class="modal-buttons">
-
+<button id="permissionDoneBtn">
+Done
+</button>
 <button
 id="closeAddMember"
 >
@@ -584,6 +663,105 @@ Close
 </button>
 
 </div>
+
+</div>
+
+</div>
+<!-- Schedule Message Modal -->
+
+<div
+id="scheduleModal"
+class="modal"
+>
+
+<div class="modal-content">
+
+<h2>
+
+Schedule Message
+
+</h2>
+
+<label>
+
+Date
+
+</label>
+
+<input
+type="date"
+id="scheduleDate"
+>
+
+<label>
+
+Time
+
+</label>
+
+<input
+type="time"
+id="scheduleTime"
+>
+
+<div class="modal-buttons">
+
+<button
+id="confirmScheduleBtn"
+>
+
+Schedule
+
+</button>
+
+<button
+id="closeScheduleBtn"
+>
+
+Cancel
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Scheduled Messages Panel -->
+
+<div
+id="scheduledPanel"
+class="schedule-panel"
+>
+
+<h2>
+
+🕒 Scheduled Messages
+
+</h2>
+
+<div
+id="scheduledMessagesList"
+>
+
+</div>
+
+<div class="modal-buttons">
+
+<button id="scheduleAnotherBtn">
+
+➕ Schedule Another Message
+
+</button>
+
+<button
+id="closeScheduledPanel"
+>
+
+Close
+
+</button>
 
 </div>
 

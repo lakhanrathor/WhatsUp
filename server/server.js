@@ -1,3 +1,8 @@
+const processScheduledMessages =
+require(
+"./workers/scheduledMessageWorker"
+);
+
 const http =
 require("http");
 
@@ -19,6 +24,9 @@ require("dotenv");
 const path =
 require("path");
 
+const scheduledMessageRoutes =
+require("./routes/scheduledMessageRoutes");
+
 const authRoutes =
 require("./routes/authRoutes");
 
@@ -37,6 +45,13 @@ app.use(cors());
 
 app.use(
 express.json()
+);
+app.use(
+
+"/api/scheduled",
+
+scheduledMessageRoutes
+
 );
 
 app.use(
@@ -116,6 +131,11 @@ origin:"*"
 
 }
 );
+setInterval(() => {
+
+    processScheduledMessages(io);
+
+}, 5000);
 
 io.on(
 "connection",

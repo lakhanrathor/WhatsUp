@@ -216,6 +216,115 @@ text,
 visibilityType,
 visibleTo
 }=req.body;
+/* Check Messaging Permission */
+
+const currentChat =
+await Chat.findById(chatId);
+
+if(!currentChat){
+
+return res.status(404).json({
+
+message:"Group not found"
+
+});
+
+}
+
+if(currentChat.type==="group"){
+
+const permission =
+currentChat.messagingPermission || {
+
+mode:"everyone",
+
+allowedMembers:[],
+
+blockedMembers:[]
+
+};
+
+/* Everyone */
+
+if(permission.mode==="everyone"){
+
+// Allow
+
+}
+
+/* Only Admins */
+
+else if(permission.mode==="admins"){
+
+if(currentChat.admin.toString()!==senderId.toString()){
+
+return res.status(403).json({
+
+message:"Only admins can send messages."
+
+});
+
+}
+
+}
+
+/* Only Selected Members */
+
+else if(permission.mode==="only"){
+
+const allowed =
+
+permission.allowedMembers.some(
+
+id=>id.toString()===senderId.toString()
+
+);
+
+const isAdmin =
+
+currentChat.admin.toString()===senderId.toString();
+
+if(!allowed && !isAdmin){
+
+return res.status(403).json({
+
+message:"You are not allowed to send messages."
+
+});
+
+}
+
+}
+
+/* Everyone Except */
+
+else if(permission.mode==="except"){
+
+const blocked =
+
+permission.blockedMembers.some(
+
+id=>id.toString()===senderId.toString()
+
+);
+
+const isAdmin =
+
+currentChat.admin.toString()===senderId.toString();
+
+if(blocked && !isAdmin){
+
+return res.status(403).json({
+
+message:"You are blocked from sending messages."
+
+});
+
+}
+
+}
+
+}
 
 const chat=
 await Chat.findById(chatId);
@@ -985,6 +1094,126 @@ error:error.message
 
 }
 );
+
+/* Update Messaging Permission */
+
+router.put(
+"/update-message-permission",
+async(req,res)=>{
+
+try{
+    console.log("UPDATE MESSAGE PERMISSION");
+console.log(req.body);
+
+const{
+
+chatId,
+adminId,
+mode,
+members=[]
+
+}=req.body;
+
+/* Find Chat */
+
+const chat=
+await Chat.findById(chatId);
+
+if(!chat){
+
+return res.status(404).json({
+
+message:"Group not found"
+
+});
+
+}
+
+/* Verify Admin */
+
+if(chat.admin.toString()!==adminId.toString()){
+
+return res.status(403).json({
+
+message:"Only admin can change messaging permissions."
+
+});
+
+}
+
+/* Save Permission */
+
+chat.messagingPermission.mode=mode;
+
+if(mode==="only"){
+
+chat.messagingPermission.allowedMembers=members;
+
+chat.messagingPermission.blockedMembers=[];
+
+}
+
+else if(mode==="except"){
+
+chat.messagingPermission.blockedMembers=members;
+
+chat.messagingPermission.allowedMembers=[];
+
+}
+
+else{
+
+chat.messagingPermission.allowedMembers=[];
+
+chat.messagingPermission.blockedMembers=[];
+
+}
+
+await chat.save();
+
+/* Return Updated Chat */
+
+const updatedChat=
+await Chat.findById(chatId)
+
+.populate(
+"members",
+"username email"
+)
+
+.populate(
+"admin",
+"username email"
+)
+
+.populate(
+"messagingPermission.allowedMembers",
+"username email"
+)
+
+.populate(
+"messagingPermission.blockedMembers",
+"username email"
+);
+
+res.json(updatedChat);
+
+}
+catch(error){
+
+console.log(error);
+
+res.status(500).json({
+
+error:error.message
+
+});
+
+}
+
+}
+);
+
 /* Add Member */
 
 router.put(
