@@ -421,18 +421,6 @@ new Date(message.scheduledFor)
 
 <p>
 
-🕒 ${
-new Date(message.scheduledFor)
-.toLocaleTimeString([],{
-
-hour:"2-digit",
-
-minute:"2-digit"
-
-})
-
-}
-
 </p>
 
 <div class="scheduled-actions">
@@ -1319,22 +1307,25 @@ localStorage.getItem(
 );
 const socket =
 io();
-socket.on(
-"receive-message",
-(data)=>{
+socket.on("receive-message", (data) => {
 
-if(
-data.chatId === activeChatId
-){
+    if (data.chatId === activeChatId) {
 
-loadMessages();
+        socket.emit("message-delivered", {
 
-}
+            messageId: data.messageId,
 
-loadChats();
+            chatId: data.chatId
 
-}
-);
+        });
+
+        loadMessages();
+
+    }
+
+    loadChats();
+
+});
 
 if(!token){
 
@@ -1625,19 +1616,23 @@ audienceModal.style.display =
 }
 );
 
-closeChatModal
-.addEventListener(
+closeChatModal.addEventListener("click", () => {
 
-  "click",
+    chatModal.style.display = "none";
 
-  ()=>{
+    chatSearch.value = "";
+    searchResults.innerHTML = "";
 
-    chatModal.style.display =
-    "none";
+    if (!activeChatId) {
 
-  }
+        selectedUser = null;
 
-);
+        chatContent.style.display = "none";
+        emptyChat.style.display = "flex";
+
+    }
+
+});
 
 /* IMPORTANT */
 
@@ -1652,7 +1647,6 @@ let chats = [];
 
 let activeChatId =
 null;
-let selectedUserId = null;
 let selectedMessages =
 [];
 let selectedChats = [];
@@ -2081,6 +2075,7 @@ loadChats(){
             activeChatId =
             chat._id;
             activeChat = chat;
+            selectedUser = null;
             activeChat.admin
             emptyChat.style.display = "none";
             chatContent.style.display = "flex";
@@ -2301,6 +2296,34 @@ async function loadMessages() {
                 toggleMessageSelection(div, msg._id);
 
             });
+            const messageTime = new Date(msg.createdAt).toLocaleTimeString([],{
+              hour:"2-digit",
+              minute:"2-digit"
+          });
+
+          let statusIcon = "";
+
+          if(isMine){
+
+              if(msg.status==="sent"){
+
+                  statusIcon = "✓";
+
+              }
+
+              else if(msg.status==="delivered"){
+
+                  statusIcon = "✓✓";
+
+              }
+
+              else{
+
+                  statusIcon = `<span class="read-status">✓✓</span>`;
+
+              }
+
+          }
 
             div.innerHTML = `
 
@@ -2310,18 +2333,31 @@ async function loadMessages() {
 
                 <div class="message-content">
 
-                    <div class="message-text">
-                        ${msg.text}
-                    </div>
+                <div class="message-text">
+                    ${msg.text}
+                </div>
 
-                    <div class="message-time">
-                        ${new Date(msg.createdAt).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                        })}
-                    </div>
+                <div class="message-footer">
+
+                    <span class="message-time">
+                        ${messageTime}
+                    </span>
+
+                    ${
+                        isMine
+                        ?
+                        `
+                        <span class="message-status">
+                            ${statusIcon}
+                        </span>
+                        `
+                        :
+                        ""
+                    }
 
                 </div>
+
+            </div>
 
                 ${
                     msg.visibilityType === "only" ||
@@ -2423,56 +2459,7 @@ if(text===""){
 return;
 
 }
-
-if(
-!activeChatId &&
-selectedUserId
-){
-
-const response =
-await fetch(
-
-"/api/chat/private-chat",
-
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-user1:USER_ID,
-
-user2:selectedUserId
-
-})
-
-}
-
-);
-
-const chat =
-await response.json();
-
-activeChatId =
-chat._id;
-
-activeChat =
-chat;
-
-await loadChats();
-
-loadMessages();
-
-selectedUserId =
-null;
-
-}
-
-if(!activeChatId){
+if (!activeChatId && !selectedUser) {
 
 alert("Select Chat");
 
@@ -2610,6 +2597,46 @@ return;
    NORMAL MESSAGE
 =========================== */
 
+if (!activeChatId) {
+
+    const response = await fetch(
+        "/api/chat/private-chat",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                user1: USER_ID,
+                user2: selectedUser._id
+
+            })
+
+        }
+    );
+
+    const chat = await response.json();
+
+    const username = selectedUser.username;
+
+activeChatId = chat._id;
+activeChat = chat;
+
+socket.emit("join-chat", activeChatId);
+
+await loadChats();
+
+chatName.textContent = username;
+chatStatus.textContent = "Online";
+
+selectedUser = null;
+
+await loadMessages();
+}
+
 const response =
 await fetch(
 
@@ -2643,30 +2670,23 @@ window.visibleTo || []
 
 );
 
-if(response.ok){
+const savedMessage = await response.json();
 
-socket.emit(
+socket.emit("send-message",{
 
-"send-message",
+    chatId:activeChatId,
 
-{
+    messageId:savedMessage._id,
 
-chatId:activeChatId,
+    sender:currentUser,
 
-sender:currentUser,
+    text
 
-text
-
-}
-
-);
+});
 
 messageInput.value="";
 
 loadMessages();
-
-}
-
 }
 catch(error){
 
@@ -2870,35 +2890,28 @@ chatSearch.addEventListener(
 
   }
 );
+let selectedUser = null;
+
 async function startPrivateChat(user){
 
-try{
+    selectedUser = user;
 
-selectedUserId = user._id;
+    activeChatId = null;
+    activeChat = null;
 
-chatModal.style.display = "none";
+    chatModal.style.display = "none";
 
-chatName.textContent = user.username;
+    chatName.textContent = user.username;
+    chatStatus.textContent = "Online";
 
-chatStatus.textContent = "Online";
+    chatWindow.innerHTML = "";
 
-chatWindow.innerHTML = "";
+    emptyChat.style.display = "none";
+    chatContent.style.display = "flex";
 
-/* Hide Welcome Screen */
-emptyChat.style.display = "none";
+    openMobileChat();
 
-chatContent.style.display = "flex";
-
-openMobileChat();
-
-messageInput.focus();
-
-}
-catch(error){
-
-console.log(error);
-
-}
+    messageInput.focus();
 
 }
 logoutBtn.addEventListener(

@@ -1,3 +1,6 @@
+const Message = require("./models/Message"); // Add this at the top
+
+
 const processScheduledMessages =
 require(
 "./workers/scheduledMessageWorker"
@@ -140,6 +143,32 @@ setInterval(() => {
 io.on(
 "connection",
 (socket)=>{
+socket.on("message-delivered", async (data) => {
+
+    await Message.findByIdAndUpdate(
+        data.messageId,
+        {
+            status: "delivered"
+        }
+    );
+
+    io.to(data.chatId).emit(
+        "message-delivered",
+        data
+    );
+
+});
+socket.on("message-read",data=>{
+
+io.to(data.chatId).emit(
+
+"message-read",
+
+data
+
+);
+
+});
     socket.on(
 "typing",
 (data)=>{

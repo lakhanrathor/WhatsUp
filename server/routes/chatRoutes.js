@@ -375,7 +375,9 @@ text,
 
 visibilityType,
 
-visibleTo
+visibleTo,
+
+status: "sent"
 
 });
 
@@ -398,6 +400,7 @@ hiddenFor:[]
 }
 
 );
+
 
 /* Return populated message */
 
@@ -424,6 +427,44 @@ error:error.message
 
 }
 );
+/* Update Message Status */
+
+router.put(
+"/message-status",
+async (req,res)=>{
+
+try{
+
+const { messageId, status } = req.body;
+
+const message =
+await Message.findByIdAndUpdate(
+
+messageId,
+
+{ status },
+
+{ new:true }
+
+).populate("senderId","username");
+
+res.json(message);
+
+}
+
+catch(error){
+
+console.log(error);
+
+res.status(500).json({
+
+error:error.message
+
+});
+
+}
+
+});
 /* Get Messages */
 
 router.get(

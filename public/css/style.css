@@ -1183,15 +1183,37 @@ gap:20px;
 
 .message-footer{
 
-    display:flex;
+display:flex;
 
-    justify-content:flex-end;
+justify-content:flex-end;
 
-    align-items:center;
+align-items:center;
 
-    gap:5px;
+gap:5px;
 
-    margin-top:8px;
+margin-top:6px;
+
+font-size:12px;
+
+color:#b8c6d9;
+
+}
+
+.message-status{
+
+font-size:14px;
+
+color:#cbd5e1;
+
+font-weight:600;
+
+}
+
+.read-status{
+
+color:#34d6ff;
+
+font-weight:700;
 
 }
 .input-wrapper{

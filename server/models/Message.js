@@ -22,6 +22,15 @@ text:{
 type:String,
 required:true
 },
+status:{
+
+    type:String,
+
+    enum:["sent","delivered","read"],
+
+    default:"sent"
+
+},
 
 visibilityType:{
 type:String,
