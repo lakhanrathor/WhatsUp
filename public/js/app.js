@@ -8,11 +8,17 @@ const mobileBackBtn =
 document.getElementById(
 "mobileBackBtn"
 );
-mobileBackBtn.onclick = ()=>{
+mobileBackBtn.addEventListener(
+"click",
+(e)=>{
+
+e.preventDefault();
+
+e.stopPropagation();
 
 closeMobileChat();
 
-};
+});
 
 
 document
@@ -1262,6 +1268,12 @@ document.querySelector(".sidebar")
 document.querySelector(".chat-section")
 .classList.add("active");
 
+history.pushState(
+{mobileChat:true},
+"",
+location.href
+);
+
 }
 
 function closeMobileChat(){
@@ -1270,11 +1282,29 @@ if(window.innerWidth > 768){
 return;
 }
 
-document.querySelector(".sidebar")
-.style.display = "block";
+/* Hide Chat */
 
 document.querySelector(".chat-section")
 .classList.remove("active");
+
+/* Show Sidebar */
+
+document.querySelector(".sidebar")
+.style.display = "block";
+
+/* Hide Chat Content */
+
+chatContent.style.display = "none";
+
+/* Show Welcome Screen */
+
+emptyChat.style.display = "flex";
+
+/* Clear Active Chat */
+
+activeChatId = null;
+
+activeChat = null;
 
 }
 
@@ -3088,6 +3118,27 @@ false;
 }
 
 }
+window.addEventListener(
+"popstate",
+(e)=>{
+
+if(window.innerWidth > 768){
+return;
+}
+
+if(activeChatId){
+
+closeMobileChat();
+
+history.pushState(
+null,
+"",
+location.href
+);
+
+}
+
+});
 
 window.addEventListener(
 "resize",

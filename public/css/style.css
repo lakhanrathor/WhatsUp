@@ -243,23 +243,13 @@ rgba(79,125,255,.15);
 }
 
 .chat-header{
-    height:75px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
 
-    padding:0 25px;
+display:flex;
 
-    background:
+align-items:center;
 
-rgba(17,24,39,.92);
+padding:15px 20px;
 
-backdrop-filter:
-
-blur(15px);
-    border-bottom:1px solid rgba(255,255,255,.08);
-
-    flex-shrink:0;
 }
 .chat-header-left{
 
@@ -267,7 +257,11 @@ display:flex;
 
 align-items:center;
 
-gap:20px;
+gap:12px;
+
+flex:1;
+
+min-width:0;
 
 }
 #deleteChatsBtn{
@@ -797,13 +791,12 @@ box-shadow:
 }
 .header-icons{
 
-    display:flex;
+margin-left:auto;
 
-    gap:25px;
+display:flex;
 
-    font-size:18px;
+gap:20px;
 
-    cursor:pointer;
 }
 
 .header-icons i:hover{
@@ -1568,9 +1561,9 @@ font-size:20px;
 
 .chat-header{
 
-height:65px;
+min-height:65px;
 
-padding:0 15px;
+padding:10px 15px;
 
 }
 
@@ -1643,7 +1636,17 @@ overflow-y:auto;
 }
 .mobile-back{
 
-display:block;
+display:flex !important;
+
+align-items:center;
+
+justify-content:center;
+
+}
+
+#deleteMessagesBtn{
+
+display:none;
 
 }
 
@@ -1653,15 +1656,22 @@ display:block;
 
 display:none;
 
-font-size:26px;
+width:42px;
 
-background:none;
+height:42px;
 
 border:none;
 
+background:none;
+
 color:white;
+
+font-size:24px;
 
 cursor:pointer;
 
-margin-right:15px;
+flex-shrink:0;
+
+margin-right:8px;
+
 }
