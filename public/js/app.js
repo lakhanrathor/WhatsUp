@@ -2034,11 +2034,9 @@ loadChats(){
         && chat.members
         ){
 
-        const otherUser =
-        chat.members.find(
-        member =>
-        member._id != USER_ID
-        );
+    const otherUser = chat.members.find(
+    member => member._id.toString() !== USER_ID.toString()
+    );
 
         if(otherUser){
 
@@ -2172,7 +2170,21 @@ if(activeChatId){
 
         activeChat = updatedChat;
 
-        chatName.textContent = activeChat.name;
+        if(activeChat.type === "private"){
+
+    const otherUser = activeChat.members.find(
+        member => member._id.toString() !== USER_ID.toString()
+    );
+
+    chatName.textContent = otherUser
+        ? otherUser.username
+        : activeChat.name;
+
+}else{
+
+    chatName.textContent = activeChat.name;
+
+}
 
         const otherMembers = activeChat.members.filter(
             member => member._id.toString() !== USER_ID.toString()
