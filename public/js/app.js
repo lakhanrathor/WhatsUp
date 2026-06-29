@@ -2350,11 +2350,16 @@ loadMessages(){
         ""
         }
 
-        <span>
-        ${new Date(
-        msg.createdAt
-        ).toLocaleTimeString()}
-        </span>
+        <div class="message-footer">
+
+          <span class="message-time">
+          ${new Date(msg.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit"
+          })}
+          </span>
+
+          </div>
         `;
 
         chatWindow.appendChild(
