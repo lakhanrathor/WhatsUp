@@ -10,11 +10,7 @@ document.getElementById(
 );
 mobileBackBtn.onclick = ()=>{
 
-document.querySelector(".sidebar")
-.style.display = "block";
-
-document.querySelector(".chat-section")
-.classList.remove("active");
+closeMobileChat();
 
 };
 
@@ -1254,6 +1250,33 @@ document
 
 }
 );
+function openMobileChat(){
+
+if(window.innerWidth > 768){
+return;
+}
+
+document.querySelector(".sidebar")
+.style.display = "none";
+
+document.querySelector(".chat-section")
+.classList.add("active");
+
+}
+
+function closeMobileChat(){
+
+if(window.innerWidth > 768){
+return;
+}
+
+document.querySelector(".sidebar")
+.style.display = "block";
+
+document.querySelector(".chat-section")
+.classList.remove("active");
+
+}
 
 const messageInput =
 document.querySelector(
@@ -2090,20 +2113,8 @@ loadChats(){
             headerName;
 
             loadMessages();
+            openMobileChat();
             /* Mobile */
-
-            if(window.innerWidth <= 768){
-
-            document.querySelector(".sidebar")
-            .style.display = "none";
-
-            document.querySelector(".chat-section")
-            .style.display = "flex";  
-
-            document.querySelector(".chat-section")
-            .classList.add("active");
-
-}
 
           }
         );
@@ -2779,13 +2790,10 @@ loadChats();
 /* Start */
 
 loadChats();
+
 if(window.innerWidth <= 768){
 
-document.querySelector(".sidebar")
-.style.display = "block";
-
-document.querySelector(".chat-section")
-.classList.remove("active");
+closeMobileChat();
 
 }
 
@@ -2878,29 +2886,22 @@ try{
 
 selectedUserId = user._id;
 
-activeChatId = null;
-
-activeChat = null;
-
 chatModal.style.display = "none";
 
 chatName.textContent = user.username;
+
 chatStatus.textContent = "Online";
 
 chatWindow.innerHTML = "";
 
 /* Hide Welcome Screen */
 emptyChat.style.display = "none";
+
 chatContent.style.display = "flex";
-if(window.innerWidth <= 768){
 
-document.querySelector(".sidebar")
-.style.display = "none";
+openMobileChat();
 
-document.querySelector(".chat-section")
-.classList.add("active");
-
-}
+messageInput.focus();
 
 }
 catch(error){
@@ -3087,3 +3088,39 @@ false;
 }
 
 }
+
+window.addEventListener(
+"resize",
+()=>{
+
+if(window.innerWidth > 768){
+
+const sidebar =
+document.querySelector(".sidebar");
+
+const chatSection =
+document.querySelector(".chat-section");
+
+sidebar.style.display = "block";
+
+chatSection.style.display = "flex";
+
+chatSection.classList.add("active");
+
+}
+else{
+
+if(activeChatId){
+
+openMobileChat();
+
+}
+else{
+
+closeMobileChat();
+
+}
+
+}
+
+});
