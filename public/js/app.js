@@ -2264,207 +2264,150 @@ async function updateScheduleIcon(){
 
 /* Load Messages */
 
-async function
-loadMessages(){
+async function loadMessages() {
 
-  if(
-    !activeChatId
-  ) return;
+    if (!activeChatId) return;
 
-  try{
+    try {
 
-    const response =
-    await fetch(
-
-      `/api/chat/messages/${activeChatId}?userId=${USER_ID}`
-
-    );
-
-    const messages =
-    await response.json();
-
-    chatWindow.innerHTML =
-    "";
-
-    messages.forEach(
-      (msg)=>{
-
-        const div =
-        document.createElement(
-          "div"
+        const response = await fetch(
+            `/api/chat/messages/${activeChatId}?userId=${USER_ID}`
         );
 
-        const sender =
-        msg.senderId
-        ? msg.senderId.username
-        : "Unknown";
+        const messages = await response.json();
 
-        const isMine =
-        sender ===
-        currentUser;
+        chatWindow.innerHTML = "";
 
-        div.className =
-        isMine
-        ? "message sent"
-        : "message received";
-        div.addEventListener(
-        "contextmenu",
-        (e)=>{
+        messages.forEach((msg) => {
 
-        e.preventDefault();
+            const div = document.createElement("div");
 
-        selectionMode =
-        true;
+            const sender = msg.senderId
+                ? msg.senderId.username
+                : "Unknown";
 
-        toggleMessageSelection(
-        div,
-        msg._id
-        );
+            const isMine = sender === currentUser;
 
-        }
-        );
+            div.className = isMine
+                ? "message sent"
+                : "message received";
 
-        div.innerHTML =
-        `
-        <div class="sender-name">
-        ${sender}
-        </div>
+            div.addEventListener("contextmenu", (e) => {
 
-        <div class="message-text">
-        ${msg.text}
-        </div>
+                e.preventDefault();
 
-        ${
-        msg.visibilityType === "only" ||
-        msg.visibilityType === "except"
-        ?
-        `
-        <button
-        class="continue-btn"
-        data-message="${msg._id}"
-        >
-        Continue Chat
-        </button>
-        `
-        :
-        ""
-        }
+                selectionMode = true;
 
-        <div class="message-footer">
+                toggleMessageSelection(div, msg._id);
 
-          <span class="message-time">
-          ${new Date(msg.createdAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit"
-          })}
-          </span>
+            });
 
-          </div>
-        `;
+            div.innerHTML = `
 
-        chatWindow.appendChild(
-          div
-        );
-        const btn =
-      div.querySelector(
-      ".continue-btn"
-      );
+                <div class="sender-name">
+                    ${sender}
+                </div>
 
-      if(btn){
+                <div class="message-content">
 
-      btn.addEventListener(
-"click",
-async()=>{
+                    <div class="message-text">
+                        ${msg.text}
+                    </div>
 
-let response =
-await fetch(
+                    <div class="message-time">
+                        ${new Date(msg.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        })}
+                    </div>
 
-`/api/thread/message/${btn.dataset.message}`
+                </div>
 
-);
+                ${
+                    msg.visibilityType === "only" ||
+                    msg.visibilityType === "except"
+                    ?
+                    `
+                    <button
+                        class="continue-btn"
+                        data-message="${msg._id}">
+                        Continue Chat
+                    </button>
+                    `
+                    :
+                    ""
+                }
 
-let thread =
-await response.json();
+            `;
 
-/* Thread Already Exists */
+            chatWindow.appendChild(div);
 
-if(thread){
+            const btn = div.querySelector(".continue-btn");
 
-activeThread =
-thread._id;
+            if (btn) {
 
-}
-else{
+                btn.addEventListener("click", async () => {
 
-/* Create New Thread */
+                    let response = await fetch(
+                        `/api/thread/message/${btn.dataset.message}`
+                    );
 
-response =
-await fetch(
+                    let thread = await response.json();
 
-"/api/thread/create",
+                    if (thread) {
 
-{
+                        activeThread = thread._id;
 
-method:"POST",
+                    } else {
 
-headers:{
-"Content-Type":
-"application/json"
-},
+                        response = await fetch(
+                            "/api/thread/create",
+                            {
+                                method: "POST",
 
-body:JSON.stringify({
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
 
-parentMessage:
-btn.dataset.message,
+                                body: JSON.stringify({
 
-parentChat:
-activeChatId,
+                                    parentMessage: btn.dataset.message,
 
-participants:
-activeChat.members.map(
-m=>m._id
-)
+                                    parentChat: activeChatId,
 
-})
+                                    participants: activeChat.members.map(
+                                        m => m._id
+                                    )
 
-}
+                                })
 
-);
+                            }
+                        );
 
-thread =
-await response.json();
+                        thread = await response.json();
 
-activeThread =
-thread._id;
+                        activeThread = thread._id;
+                    }
 
-}
+                    document.getElementById("threadPanel").style.right = "0";
 
-document
-.getElementById(
-"threadPanel"
-)
-.style.right =
-"0";
+                    loadThreadMessages();
 
-loadThreadMessages();
+                });
 
-}
-);
+            }
 
-      }
+        });
 
-      }
-    );
+        chatWindow.scrollTop = chatWindow.scrollHeight;
 
-    chatWindow.scrollTop =
-    chatWindow.scrollHeight;
+    }
 
-  }
-  catch(error){
+    catch (error) {
 
-    console.log(error);
+        console.log(error);
 
-  }
+    }
 
 }
 
