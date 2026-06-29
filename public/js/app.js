@@ -3175,3 +3175,29 @@ closeMobileChat();
 }
 
 });
+  function resizeChat(){
+
+const height = window.visualViewport
+? window.visualViewport.height
+: window.innerHeight;
+
+document.querySelector(".container").style.height =
+height + "px";
+
+}
+
+window.addEventListener(
+"resize",
+resizeChat
+);
+
+if(window.visualViewport){
+
+window.visualViewport.addEventListener(
+"resize",
+resizeChat
+);
+
+}
+
+resizeChat();
