@@ -3,6 +3,22 @@ let selectedPermissionMembers = new Set();
 let scheduledMessage = null;
 let editingScheduledId = null;
 
+// Mobile Section 
+const mobileBackBtn =
+document.getElementById(
+"mobileBackBtn"
+);
+mobileBackBtn.onclick = ()=>{
+
+document.querySelector(".sidebar")
+.style.display = "block";
+
+document.querySelector(".chat-section")
+.classList.remove("active");
+
+};
+
+
 document
 .getElementById("continuePermissionBtn")
 .onclick = async () => {
@@ -2074,6 +2090,20 @@ loadChats(){
             headerName;
 
             loadMessages();
+            /* Mobile */
+
+            if(window.innerWidth <= 768){
+
+            document.querySelector(".sidebar")
+            .style.display = "none";
+
+            document.querySelector(".chat-section")
+            .style.display = "flex";  
+
+            document.querySelector(".chat-section")
+            .classList.add("active");
+
+}
 
           }
         );
@@ -2749,6 +2779,15 @@ loadChats();
 /* Start */
 
 loadChats();
+if(window.innerWidth <= 768){
+
+document.querySelector(".sidebar")
+.style.display = "block";
+
+document.querySelector(".chat-section")
+.classList.remove("active");
+
+}
 
 chatSearch.addEventListener(
   "input",
@@ -2853,6 +2892,15 @@ chatWindow.innerHTML = "";
 /* Hide Welcome Screen */
 emptyChat.style.display = "none";
 chatContent.style.display = "flex";
+if(window.innerWidth <= 768){
+
+document.querySelector(".sidebar")
+.style.display = "none";
+
+document.querySelector(".chat-section")
+.classList.add("active");
+
+}
 
 }
 catch(error){
