@@ -2425,7 +2425,7 @@ async function loadMessages() {
                         activeThread = thread._id;
                     }
 
-                    document.getElementById("threadPanel").style.right = "0";
+                    document.getElementById("threadPanel").classList.add("active");
 
                     loadThreadMessages();
 
@@ -2685,6 +2685,11 @@ socket.emit("send-message",{
 });
 
 messageInput.value="";
+
+// Reset visibility for next message
+window.visibilityType = "all";
+window.visibleTo = [];
+window.hiddenFor = [];
 
 loadMessages();
 }
@@ -2947,12 +2952,7 @@ document
 "click",
 ()=>{
 
-document
-.getElementById(
-"threadPanel"
-)
-.style.right =
-"-400px";
+document.getElementById("threadPanel").classList.remove("active");
 
 }
 );
