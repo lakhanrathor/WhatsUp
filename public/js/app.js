@@ -493,45 +493,31 @@ document.createElement("div");
 
 card.className="scheduled-card";
 
-card.innerHTML=`
+const date = new Date(message.scheduledFor);
 
+card.innerHTML = `
 <h4>${message.text}</h4>
 
 <p>
-
-📅 ${
-new Date(message.scheduledFor)
-.toLocaleDateString()
-}
-
+📅 ${date.toLocaleDateString()}
 </p>
 
 <p>
-
+🕒 ${date.toLocaleTimeString([],{
+    hour:"2-digit",
+    minute:"2-digit"
+})}
 </p>
 
 <div class="scheduled-actions">
+    <button class="editScheduleBtn" data-id="${message._id}">
+        ✏ Edit
+    </button>
 
-<button
-class="editScheduleBtn"
-data-id="${message._id}"
->
-
-✏ Edit
-
-</button>
-
-<button
-class="deleteScheduleBtn"
-data-id="${message._id}"
->
-
-🗑 Delete
-
-</button>
-
+    <button class="deleteScheduleBtn" data-id="${message._id}">
+        🗑 Delete
+    </button>
 </div>
-
 `;
 
 scheduledMessagesList.appendChild(card);
@@ -1881,6 +1867,23 @@ document
 .addEventListener(
 "click",
 sendThreadMessage
+);
+const threadInput =
+document.getElementById("threadInput");
+
+threadInput.addEventListener(
+"keydown",
+(e)=>{
+
+    if(e.key === "Enter" && !e.shiftKey){
+
+        e.preventDefault();
+
+        sendThreadMessage();
+
+    }
+
+}
 );
 
 let visibleTo =
