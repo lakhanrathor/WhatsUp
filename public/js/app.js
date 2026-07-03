@@ -229,6 +229,93 @@ removeMemberBtn.onclick = () => {
     );
 
 };
+const profileAvatar =
+document.getElementById("profileAvatar");
+
+const profileUpload =
+document.getElementById("profileUpload");
+
+const profileImage =
+document.getElementById("profileImage");
+
+profileAvatar.addEventListener(
+"click",
+()=>{
+
+profileUpload.click();
+
+});
+profileUpload.addEventListener(
+"change",
+async()=>{
+
+const file =
+profileUpload.files[0];
+
+if(!file) return;
+
+const formData =
+new FormData();
+
+formData.append(
+"profilePic",
+file
+);
+
+formData.append(
+"userId",
+USER_ID
+);
+
+try{
+
+const response =
+await fetch(
+
+"/api/auth/upload-profile",
+
+{
+
+method:"POST",
+
+body:formData
+
+}
+
+);
+
+const data =
+await response.json();
+
+if(data.success){
+
+profileImage.src = data.profilePic;
+
+localStorage.setItem(
+    "profilePic",
+    data.profilePic
+);
+
+alert("Profile picture updated!");
+
+}
+else{
+
+alert(
+"Upload failed."
+);
+
+}
+
+}
+catch(error){
+
+console.log(error);
+
+}
+
+}
+);
 
 const removeMemberModal =
 document.getElementById(
@@ -1343,6 +1430,16 @@ document.getElementById(
 ).textContent =
 currentUser;
 
+const savedProfilePic =
+localStorage.getItem("profilePic");
+
+if(savedProfilePic){
+
+    profileImage.src =
+    savedProfilePic;
+
+}
+
 createGroupBtn.addEventListener(
 "click",
 async()=>{
@@ -2041,39 +2138,65 @@ loadChats(){
 
 }
 
-        div.innerHTML =
-        `
-        <div class="chat-left">
+        const unread =
+chat.unreadCounts?.[USER_ID] || 0;
 
-          <div class="chat-avatar">
+div.innerHTML =
+`
+<div class="chat-left">
 
-            ${chat.name
-            .charAt(0)
-            .toUpperCase()}
+  <div class="chat-avatar">
 
-          </div>
+    ${chat.name
+    .charAt(0)
+    .toUpperCase()}
 
-          <div class="chat-info">
+  </div>
 
-            <h4>
-              ${displayName}
-            </h4>
+  <div class="chat-info">
 
-            <p>
-              ${chat.type}
-            </p>
+    <h4>
+      ${displayName}
+    </h4>
 
-          </div>
+<p class="last-message">
+${
+chat.lastMessage
+? chat.lastMessage.text
+: (chat.type === "group" ? "Group" : "Private Chat")
+}
+</p>
 
-        </div>
-        `;
+  </div>
 
+</div>
+
+${
+unread > 0
+?
+`
+<div class="unread-badge">
+${unread}
+</div>
+`
+:
+""
+}
+`;
         div.addEventListener(
-          "click",
-          ()=>{
+          "click",async ()=>{
 
             activeChatId =
             chat._id;
+            fetch(
+
+            `/api/chat/read/${activeChatId}/${USER_ID}`,
+
+            {
+                method:"PUT"
+            }
+
+            );
             activeChat = chat;
             selectedUser = null;
             activeChat.admin
@@ -2136,6 +2259,7 @@ loadChats(){
             headerName;
 
             loadMessages();
+            await loadChats();
             openMobileChat();
             /* Mobile */
 

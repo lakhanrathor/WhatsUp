@@ -21,9 +21,9 @@ new mongoose.Schema({
     },
 
     profilePic:{
-        type:String,
-        default:""
-    }
+    type:String,
+    default:"/images/default-avatar.png"
+}
 
 });
 

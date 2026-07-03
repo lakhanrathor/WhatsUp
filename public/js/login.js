@@ -66,6 +66,10 @@ localStorage.setItem(
 "email",
 data.email
 );
+localStorage.setItem(
+    "profilePic",
+    data.profilePic || ""
+);
 
 window.location =
 "index.html";

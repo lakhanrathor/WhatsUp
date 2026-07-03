@@ -1,3 +1,7 @@
+console.log("Auth routes loaded");
+
+const upload = require("../middleware/upload");
+
 const express =
 require("express");
 
@@ -139,19 +143,12 @@ try{
 
     );
 
-    res.json({
-
+res.json({
     token,
-
-    userId:
-    user._id,
-
-    username:
-    user.username,
-
-    email:
-    user.email
-
+    userId: user._id,
+    username: user.username,
+    email: user.email,
+    profilePic: user.profilePic
 });
 }
 catch(error){
@@ -219,6 +216,64 @@ error:error.message
 }
 
 }
+);
+router.post(
+    "/upload-profile",
+    upload.single("profilePic"),
+    async (req, res) => {
+
+        try {
+
+            console.log("BODY:", req.body);
+            console.log("FILE:", req.file);
+
+            const { userId } = req.body;
+
+console.log("User ID:", userId);
+console.log("Uploaded File:", req.file);
+
+if (!req.file) {
+    return res.status(400).json({
+        success: false,
+        error: "No file received."
+    });
+}
+
+const user = await User.findByIdAndUpdate(
+
+    userId,
+
+    {
+        profilePic: req.file.path
+    },
+
+    {
+        new: true
+    }
+
+);
+
+console.log("Updated User:", user);
+
+            console.log("USER:", user);
+
+            res.json({
+                success: true,
+                profilePic: user.profilePic
+            });
+
+        }
+        catch (error) {
+
+            console.log("UPLOAD ERROR:", error);
+
+            res.status(500).json({
+                error: error.message
+            });
+
+        }
+
+    }
 );
 
 module.exports =

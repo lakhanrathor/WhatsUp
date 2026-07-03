@@ -382,6 +382,31 @@ status: "sent"
 });
 
 await message.save();
+chat.lastMessage = message._id;
+await chat.save();
+
+// Increase unread count for everyone except the sender
+chat.members.forEach(member => {
+
+    if(member.toString() !== senderId){
+
+        const current =
+        chat.unreadCounts.get(member.toString()) || 0;
+
+        chat.unreadCounts.set(
+            member.toString(),
+            current + 1
+        );
+
+    }
+
+});
+
+chat.lastMessage = message._id;
+
+chat.updatedAt = new Date();
+
+await chat.save();
 
 /* Restore hidden chat when new message arrives */
 
@@ -509,7 +534,9 @@ chatId:req.params.chatId
 "username"
 )
 .sort({
-createdAt:1
+
+updatedAt:-1
+
 });
 
 const filtered=
@@ -663,7 +690,7 @@ await Chat.find()
 
 .sort({
 
-createdAt:-1
+updatedAt:-1
 
 });
 
@@ -738,6 +765,7 @@ $ne:userId
 "admin",
 "username"
 )
+.populate("lastMessage","text createdAt")
 
 .sort({
 
@@ -748,6 +776,10 @@ createdAt:-1
 const updatedChats = chats.map(chat => {
 
     chat = chat.toObject();
+    chat.unreadCounts =
+    Object.fromEntries(
+        chat.unreadCounts || []
+    );
 
     if(chat.type === "group"){
 
@@ -782,6 +814,45 @@ error:error.message
 
 }
 );
+router.put(
+"/read/:chatId/:userId",
+async(req,res)=>{
+
+try{
+
+const { chatId, userId } = req.params;
+
+const chat =
+await Chat.findById(chatId);
+
+if(!chat){
+
+return res.status(404).json({
+message:"Chat not found"
+});
+
+}
+
+chat.unreadCounts.set(userId,0);
+
+await chat.save();
+
+res.json({
+success:true
+});
+
+}
+catch(error){
+
+console.log(error);
+
+res.status(500).json({
+error:error.message
+});
+
+}
+
+});
 /* Create Group */
 
 router.post(
