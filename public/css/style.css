@@ -2012,3 +2012,86 @@ flex-shrink:0;
 margin-right:8px;
 
 }
+/* ===========================
+   IN-APP TOAST NOTIFICATION
+=========================== */
+
+#toastContainer{
+
+    position:fixed;
+
+    top:20px;
+
+    right:20px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    z-index:99999;
+
+}
+
+.toast{
+
+    width:320px;
+
+    background:#1f2937;
+
+    color:white;
+
+    border-radius:14px;
+
+    padding:15px;
+
+    cursor:pointer;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+
+    animation:slideIn .3s ease;
+
+    border-left:5px solid #3b82f6;
+
+}
+
+.toast strong{
+
+    display:block;
+
+    margin-bottom:5px;
+
+    color:#60a5fa;
+
+    font-size:17px;
+
+}
+
+.toast p{
+
+    margin:0;
+
+    color:#d1d5db;
+
+}
+
+@keyframes slideIn{
+
+from{
+
+transform:translateX(100%);
+
+opacity:0;
+
+}
+
+to{
+
+transform:translateX(0);
+
+opacity:1;
+
+}
+
+}

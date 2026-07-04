@@ -1380,7 +1380,45 @@ localStorage.getItem(
 );
 const socket =
 io();
+if ("Notification" in window) {
+
+    Notification.requestPermission();
+
+}
 socket.on("receive-message", (data) => {
+
+    // Don't notify for your own messages
+    if (data.sender !== currentUser) {
+
+        // Show in-app toast only if this chat isn't currently open
+        if (data.chatId !== activeChatId) {
+
+            showToast(
+                data.sender,
+                data.text,
+                data.chatId
+            );
+
+        }
+
+        // Browser notification
+        if (
+            document.hidden &&
+            Notification.permission === "granted"
+        ) {
+
+            new Notification("WhatsUp", {
+
+                body: `${data.sender}: ${data.text}`,
+
+                icon: localStorage.getItem("profilePic") ||
+                "/images/default-avatar.png"
+
+            });
+
+        }
+
+    }
 
     if (data.chatId === activeChatId) {
 
@@ -1494,9 +1532,6 @@ groupName.value =
 
 loadChats();
 
-alert(
-"Group Created"
-);
 
 }
 
@@ -2072,6 +2107,60 @@ async function refreshActiveChat(){
     );
 
 }
+function showToast(sender, text, chatId){
+
+    const container =
+    document.getElementById(
+    "toastContainer"
+    );
+
+    const toast =
+    document.createElement(
+    "div"
+    );
+
+    toast.className =
+    "toast";
+
+    toast.innerHTML =
+    `
+    <strong>${sender}</strong>
+
+    <p>${text}</p>
+    `;
+
+    // Open the chat when clicked
+   toast.addEventListener(
+"click",
+()=>{
+
+    const chatItem =
+    document.querySelector(
+    `[data-chat-id="${chatId}"]`
+    );
+
+    if(chatItem){
+
+        chatItem.click();
+
+    }
+
+    toast.remove();
+
+}
+);
+
+    container.appendChild(
+    toast
+    );
+
+    setTimeout(()=>{
+
+        toast.remove();
+
+    },5000);
+
+}
 
 async function
 loadChats(){
@@ -2103,6 +2192,7 @@ loadChats(){
 
         div.className =
         "chat-item";
+        div.dataset.chatId = chat._id;
         div.addEventListener(
         "contextmenu",
         (e)=>{
