@@ -1086,11 +1086,16 @@ gap:20px;
 
     top:0;
 
-    right:-100%;
+    right:0;
 
     width:420px;
+    max-width:100vw;
 
     height:100vh;
+     transform:translateX(100%);
+
+    transition:transform .35s ease;
+
 
     background:#111827;
 
@@ -1098,9 +1103,6 @@ gap:20px;
     1px solid rgba(
       255,255,255,0.08
     );
-
-    transition:0.4s;
-
     display:flex;
 
     flex-direction:column;
@@ -1110,9 +1112,9 @@ gap:20px;
 
 .thread-panel.active{
 
-    right:0;
-}
+    transform:translateX(0);
 
+}
 .thread-header{
 
     display:flex;
@@ -1814,6 +1816,14 @@ height:100dvh;
 overflow:hidden;
 
 }
+.thread-panel{
+
+    width:100%;
+
+    max-width:100%;
+
+}
+
 
 
 .chat-section.active{
