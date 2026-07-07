@@ -193,12 +193,11 @@ document.getElementById(
 );
 
 document
-.getElementById(
-"closePermissionBtn"
-)
-.onclick=()=>{
+.getElementById("closePermissionBtn").onclick = () => {
 
-messagePermissionModal.style.display="none";
+    messagePermissionModal.style.display = "none";
+
+    groupInfoModal.style.display = "flex";
 
 };
 
@@ -206,7 +205,11 @@ document
 .getElementById("messagePermissionBtn")
 .onclick = () => {
 
-messagePermissionModal.style.display="flex";
+    // Close Group Info
+    groupInfoModal.style.display = "none";
+
+    // Open Permission Modal
+    messagePermissionModal.style.display = "flex";
 
 };
 
