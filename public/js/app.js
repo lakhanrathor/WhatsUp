@@ -106,64 +106,8 @@ addMemberResults.innerHTML = "";
 }
 
 };
-const permissionDoneBtn =
-document.getElementById("permissionDoneBtn");
-permissionDoneBtn.onclick = async()=>{
-
-const mode =
-document.querySelector(
-'input[name="messagePermission"]:checked'
-).value;
-
-const response =
-await fetch(
-
-"/api/chat/update-message-permission",
-
-{
-
-method:"PUT",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-chatId:activeChatId,
-
-adminId:USER_ID,
-
-mode,
-
-members:Array.from(selectedPermissionMembers)
-
-})
-
-}
-
-);
-
-if(response.ok){
-
-activeChat = await response.json();
-
-selectedPermissionMembers.clear();
-
-addMemberModal.style.display = "none";
-
-alert("Messaging permission updated successfully.");
-
-}
-else{
-
-const error = await response.json();
-
-alert(error.message);
-
-}
-
-};
+const doneAddMember =
+document.getElementById("doneAddMember");
 
 const scheduledPanel =
 document.getElementById(
@@ -793,8 +737,18 @@ document.getElementById(
 
 const closeAddMember =
 document.getElementById("closeAddMember");
-closeAddMember.onclick = () => {
+closeAddMember.onclick = ()=>{
+
+    pendingMembers = [];
+
+    addMemberSearch.value = "";
+
+    addMemberResults.innerHTML = "";
+
     addMemberModal.style.display = "none";
+
+    groupInfoModal.style.display = "flex";
+
 };
 
 addMemberSearch.addEventListener(
@@ -874,45 +828,27 @@ div.onclick = async()=>{
 
 /* ADD MEMBER */
 
-if(memberSelectorMode==="add"){
+if(memberSelectorMode === "add"){
 
-await fetch(
+    if(pendingMembers.some(m => m._id === user._id)){
 
-"/api/chat/add-member",
+        pendingMembers =
+        pendingMembers.filter(
+            m => m._id !== user._id
+        );
 
-{
+        div.classList.remove("selected-user");
 
-method:"PUT",
+    }
+    else{
 
-headers:{
-"Content-Type":"application/json"
-},
+        pendingMembers.push(user);
 
-body:JSON.stringify({
+        div.classList.add("selected-user");
 
-chatId:activeChatId,
+    }
 
-memberId:user._id,
-
-adminId:USER_ID
-
-})
-
-}
-
-);
-
-await loadChats();
-
-loadMessages();
-
-groupInfoModal.style.display="flex";
-
-addMemberModal.style.display="none";
-
-groupMenuBtn.click();
-
-return;
+    return;
 
 }
 
@@ -1133,6 +1069,98 @@ document.getElementById(
 
 let selectedMembers =
 [];
+let tempSelectedMembers = [];
+let pendingMembers = [];
+doneAddMember.onclick = async () => {
+
+    // ADD MEMBER MODE
+    if(memberSelectorMode === "add"){
+
+        for(const user of pendingMembers){
+
+            await fetch("/api/chat/add-member",{
+
+                method:"PUT",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    chatId:activeChatId,
+                    memberId:user._id,
+                    adminId:USER_ID
+
+                })
+
+            });
+
+        }
+
+        pendingMembers = [];
+
+        addMemberModal.style.display = "none";
+
+        groupInfoModal.style.display = "flex";
+
+        await loadChats();
+
+        loadMessages();
+
+        groupMenuBtn.click();
+
+        return;
+
+    }
+
+    // PERMISSION MODE
+    if(
+        memberSelectorMode === "permission-only" ||
+        memberSelectorMode === "permission-except"
+    ){
+
+        const mode =
+        memberSelectorMode === "permission-only"
+            ? "only"
+            : "except";
+
+        const response =
+        await fetch("/api/chat/update-message-permission",{
+
+            method:"PUT",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                chatId:activeChatId,
+                adminId:USER_ID,
+                mode,
+                members:Array.from(selectedPermissionMembers)
+
+            })
+
+        });
+
+        if(response.ok){
+
+            selectedPermissionMembers.clear();
+
+            addMemberModal.style.display = "none";
+
+            groupInfoModal.style.display = "flex";
+
+            alert("Messaging permission updated.");
+
+        }
+
+    }
+
+};
+
 
 const privateBtn =
 document.getElementById(
@@ -1522,19 +1550,21 @@ admin:USER_ID
 
 if(response.ok){
 
-groupModal.style.display =
-"none";
+    groupModal.style.display = "none";
 
-selectedMembers =
-[];
+    selectedMembers = [];
 
-groupName.value =
-"";
+    tempSelectedMembers = [];
 
+    groupName.value = "";
 
+    groupSearch.value = "";
 
-loadChats();
+    groupSearchResults.innerHTML = "";
 
+    document.getElementById("selectedMembers").innerHTML = "";
+
+    loadChats();
 
 }
 
@@ -1551,15 +1581,30 @@ groupModal.style.display =
 }
 );
 
-closeGroupModal.addEventListener(
-"click",
-()=>{
+closeGroupModal.onclick = () => {
 
-groupModal.style.display =
-"none";
+    // Hide modal
+    groupModal.style.display = "none";
 
-}
-);
+    // Clear group name
+    groupName.value = "";
+
+    // Clear search box
+    groupSearch.value = "";
+
+    // Clear search results
+    groupSearchResults.innerHTML = "";
+
+    // Clear selected members
+    selectedMembers = [];
+
+    // If you still have tempSelectedMembers, clear it too
+    tempSelectedMembers = [];
+
+    // Clear selected members UI
+    document.getElementById("selectedMembers").innerHTML = "";
+
+};
 groupSearch.addEventListener(
 "input",
 async()=>{
@@ -1623,9 +1668,7 @@ m=>m._id === user._id
 )
 ){
 
-selectedMembers.push(
-user
-);
+selectedMembers.push(user);
 
 renderMembers();
 

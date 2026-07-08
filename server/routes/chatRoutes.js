@@ -773,30 +773,84 @@ createdAt:-1
 
 });
 
-const updatedChats = chats.map(chat => {
+const updatedChats = [];
 
-    chat = chat.toObject();
+for (const chatDoc of chats) {
+
+    const chat = chatDoc.toObject();
+
     chat.unreadCounts =
     Object.fromEntries(
         chat.unreadCounts || []
     );
+    const messages =
+await Message.find({
 
-    if(chat.type === "group"){
+    chatId: chat._id,
 
-        const removed = chat.removedMembers.find(
-            member =>
-                member.user &&
-                member.user._id.toString() === userId.toString()
-        );
-
-        chat.currentMembers = removed
-            ? chat.members
-            : chat.activeMembers;
+    hiddenFor:{
+        $ne:userId
     }
 
-    return chat;
+})
+.sort({
+
+    createdAt:-1
 
 });
+
+chat.lastMessage = null;
+
+for(const msg of messages){
+
+    let visible = true;
+
+    if(msg.visibilityType === "only"){
+
+        const allowed =
+        (msg.visibleTo || [])
+        .map(id => id.toString());
+
+        if(
+            msg.senderId.toString() !== userId &&
+            !allowed.includes(userId.toString())
+        ){
+
+            visible = false;
+
+        }
+
+    }
+
+    else if(msg.visibilityType === "except"){
+
+        const blocked =
+        (msg.visibleTo || [])
+        .map(id => id.toString());
+
+        if(
+            blocked.includes(userId.toString()) &&
+            msg.senderId.toString() !== userId
+        ){
+
+            visible = false;
+
+        }
+
+    }
+
+    if(visible){
+
+        chat.lastMessage = msg;
+
+        break;
+
+    }
+
+}
+    updatedChats.push(chat);
+
+}
 res.json(updatedChats);
 
 }
