@@ -294,21 +294,65 @@ class="typing-indicator"
   class="thread-panel"
 >
 
-  <div
-    class="thread-header"
-  >
+  <div class="thread-header">
 
-<h3>
-  🔒 Private Discussion
+<h3 id="threadTitle">
+🔒 Private Discussion
 </h3>
 
+<div class="thread-header-icons">
+
+<i
+id="threadParticipantsBtn"
+class="fa-solid fa-users"
+title="Participants"
+></i>
+
 <button
-  id="closeThread"
+id="closeThread"
 >
-  ✖
+✖
 </button>
 
-  </div>
+</div>
+<div
+id="threadParticipantsModal"
+class="modal"
+>
+
+<div class="modal-content">
+
+<h2>
+Participants
+</h2>
+
+<div
+id="threadParticipantsList"
+class="member-list"
+>
+</div>
+
+<p
+id="threadParticipantsCount"
+style="margin-top:15px;font-weight:bold;"
+>
+</p>
+
+<div class="modal-buttons">
+
+<button
+id="closeThreadParticipants"
+>
+Close
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
 
   <div
     id="threadMessages"

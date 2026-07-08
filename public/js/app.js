@@ -2,6 +2,85 @@ let memberSelectorMode = "add";
 let selectedPermissionMembers = new Set();
 let scheduledMessage = null;
 let editingScheduledId = null;
+let currentParentMessage = null;
+
+const threadParticipantsBtn =
+document.getElementById(
+"threadParticipantsBtn"
+);
+
+const threadParticipantsModal =
+document.getElementById(
+"threadParticipantsModal"
+);
+
+const threadParticipantsList =
+document.getElementById(
+"threadParticipantsList"
+);
+
+const threadParticipantsCount =
+document.getElementById(
+"threadParticipantsCount"
+);
+
+const closeThreadParticipants =
+document.getElementById(
+"closeThreadParticipants"
+);
+closeThreadParticipants.onclick=()=>{
+
+threadParticipantsModal.style.display="none";
+
+};
+
+threadParticipantsBtn.onclick = ()=>{
+
+    threadParticipantsList.innerHTML = "";
+
+    if(!currentParentMessage){
+
+        return;
+
+    }
+
+    // Show Creator first
+    const creator =
+    document.createElement("div");
+
+creator.innerHTML =
+`👤 ${currentParentMessage.senderId.username}
+<b>(Creator)</b>`;
+
+    threadParticipantsList.appendChild(
+        creator
+    );
+
+    // Show other participants
+    (currentParentMessage.visibleTo || [])
+    .forEach(user=>{
+
+        const div =
+        document.createElement("div");
+
+        div.innerHTML =
+        `👤 ${user.username}`;
+
+        threadParticipantsList.appendChild(
+            div
+        );
+
+    });
+
+    threadParticipantsCount.textContent =
+    `Visible to ${
+        (currentParentMessage.visibleTo || []).length + 1
+    } members`;
+
+    threadParticipantsModal.style.display =
+    "flex";
+
+};
 
 // Mobile Section 
 const mobileBackBtn =
@@ -1839,8 +1918,16 @@ await fetch(
 
 );
 
-const messages =
+const data =
 await response.json();
+
+const messages =
+data.messages;
+
+// Save the parent message globally
+currentParentMessage =
+data.parentMessage;
+console.log(currentParentMessage);
 
 const container =
 document.getElementById(

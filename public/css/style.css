@@ -1080,6 +1080,51 @@ gap:20px;
 
     background:#1d4ed8;
 }
+.thread-header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+}
+
+.thread-header-icons{
+
+display:flex;
+
+align-items:center;
+
+gap:18px;
+
+}
+
+#threadParticipantsBtn{
+
+cursor:pointer;
+
+font-size:18px;
+
+transition:.2s;
+
+}
+
+#threadParticipantsBtn:hover{
+
+color:#4dabf7;
+
+}
+
+#threadParticipantsList div{
+
+padding:12px;
+
+border-bottom:1px solid #3c4b68;
+
+font-size:17px;
+
+}
 .thread-panel{
 
     position:fixed;

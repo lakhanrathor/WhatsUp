@@ -21,7 +21,8 @@ try{
 const {
 parentMessage,
 parentChat,
-participants
+participants,
+creator
 } = req.body;
 
 const thread =
@@ -29,7 +30,8 @@ new Thread({
 
 parentMessage,
 parentChat,
-participants
+participants,
+creator
 
 });
 
@@ -131,11 +133,30 @@ async(req,res)=>{
 
 try{
 
+const thread =
+await Thread.findById(req.params.threadId)
+.populate({
+
+path:"parentMessage",
+
+populate:[
+{
+path:"visibleTo",
+select:"username"
+},
+{
+path:"senderId",
+select:"username"
+}
+
+]
+
+});
+
 const messages =
 await ThreadMessage.find({
 
-threadId:
-req.params.threadId
+threadId:req.params.threadId
 
 })
 .populate(
@@ -146,52 +167,27 @@ req.params.threadId
 createdAt:1
 });
 
-res.json(
-messages
-);
+res.json({
 
-}
-catch(error){
-
-res.status(500)
-.json({
-error:error.message
-});
-
-}
-
-}
-);
-router.get(
-"/message/:messageId",
-async(req,res)=>{
-
-try{
-
-const thread =
-await Thread.findOne({
+messages,
 
 parentMessage:
-req.params.messageId
+thread.parentMessage
 
 });
-
-res.json(
-thread
-);
 
 }
 catch(error){
 
-res.status(500)
-.json({
+res.status(500).json({
+
 error:error.message
+
 });
 
 }
 
 }
 );
-
 module.exports =
 router;
